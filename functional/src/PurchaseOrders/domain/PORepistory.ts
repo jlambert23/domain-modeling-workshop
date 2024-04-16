@@ -1,4 +1,4 @@
-import { None, Ok, Some, Option } from "oxide.ts";
+import { None, Ok, Some, Err } from "oxide.ts";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
 import { PurchaseOrder } from "./PurchaseOrder";
@@ -6,6 +6,7 @@ import { PurchaseOrder } from "./PurchaseOrder";
 class PORepository implements IPORepository {
   purchaseOrders: PurchaseOrder[] = [];
   async save(po: PurchaseOrder) {
+    if (!po.lineItems.length) return Err(new Error("Missing line items"));
     this.purchaseOrders.push(po);
     return Ok(undefined);
   }

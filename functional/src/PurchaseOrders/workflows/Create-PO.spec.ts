@@ -1,8 +1,23 @@
 import { match } from "oxide.ts";
 import { isUuid } from "../../utilities/uuid";
 import { constructPORepository } from "../domain/PORepistory";
-import { isPurchaseOrder } from "../domain/PurchaseOrder";
+import { LineItem, isPurchaseOrder } from "../domain/PurchaseOrder";
 import { createPO } from "./Create-PO";
+
+const lineItems: LineItem[] = [
+  {
+    item: 21412,
+    description: "DVD Set",
+    price: 50.0,
+    quantity: 2,
+  },
+  {
+    item: 478,
+    description: "People's Magazine",
+    price: 10.99,
+    quantity: 1,
+  },
+];
 
 describe("Create PO Workflow", () => {
   it("is callable", () => {
@@ -12,7 +27,7 @@ describe("Create PO Workflow", () => {
 
   it("returns a uuid", async () => {
     const repo = constructPORepository();
-    const poResult = await createPO({ PORepo: repo })();
+    const poResult = await createPO({ PORepo: repo })(lineItems);
     const id = poResult.unwrap();
     expect(poResult.isOk()).toBeTruthy();
     expect(isUuid(id)).toBeTruthy();
@@ -20,7 +35,7 @@ describe("Create PO Workflow", () => {
 
   it("saves a purchase order to a repository", async () => {
     const repo = constructPORepository();
-    const result = await createPO({ PORepo: repo })();
+    const result = await createPO({ PORepo: repo })(lineItems);
     const id = result.unwrap();
     const poRes = await repo.fetch(id);
     const output = match(poRes, {
@@ -35,5 +50,11 @@ describe("Create PO Workflow", () => {
     if (isPurchaseOrder(output)) {
       expect(id).toEqual(output.id);
     }
+  });
+
+  it("fails to save a purchase order without line items", async () => {
+    const repo = constructPORepository();
+    const result = await createPO({ PORepo: repo })([]);
+    expect(result.unwrapErr()).toEqual(new Error("Missing line items"));
   });
 });
