@@ -2,9 +2,11 @@ import { None, Ok, Some, Err } from "oxide.ts";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
 import { PurchaseOrder } from "./PurchaseOrder";
+import { createPONumber } from "./PONumber";
 
 class PORepository implements IPORepository {
   purchaseOrders: PurchaseOrder[] = [];
+  poNumberSeq: number = 0;
   async save(po: PurchaseOrder) {
     if (!po.lineItems.length) return Err(new Error("Missing line items"));
     this.purchaseOrders.push(po);
@@ -13,6 +15,9 @@ class PORepository implements IPORepository {
   async fetch(id: UUID) {
     const po = this.purchaseOrders.find((p) => p.id === id);
     return po ? Ok(Some(po)) : Ok(None);
+  }
+  async fetchNextPONumber() {
+    return Ok(createPONumber(this.poNumberSeq + 1));
   }
 }
 export const constructPORepository = () => new PORepository();
