@@ -5,3 +5,9 @@ export const createPONumber = (num: number): PONumber => {
   return `syn-${paddedNumber}` as PONumber;
 };
 
+export const parsePONumber = (poNumber: PONumber): number | null => {
+  const match = poNumber.match(/\d+/);
+  if (!match) return null;
+  const parsedNumber = Number(match[0]);
+  return Number.isInteger(parsedNumber) ? parsedNumber : null;
+};

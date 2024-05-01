@@ -2,14 +2,19 @@ import { None, Ok, Some, Err } from "oxide.ts";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
 import { PurchaseOrder } from "./PurchaseOrder";
-import { createPONumber } from "./PONumber";
+import { createPONumber, parsePONumber } from "./PONumber";
 
 class PORepository implements IPORepository {
   purchaseOrders: PurchaseOrder[] = [];
   poNumberSeq: number = 0;
   async save(po: PurchaseOrder) {
     if (!po.lineItems.length) return Err(new Error("Missing line items"));
+    const parsedPONumber = parsePONumber(po.poNumber);
+    if (!parsedPONumber || parsedPONumber <= this.poNumberSeq) {
+      return Err(new Error("PO number is invalid"));
+    }
     this.purchaseOrders.push(po);
+    this.poNumberSeq = parsedPONumber;
     return Ok(undefined);
   }
   async fetch(id: UUID) {
