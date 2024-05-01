@@ -19,7 +19,10 @@ const lineItems: LineItem[] = [
 
 describe("Purcase Order Entity", () => {
   it("does it", () => {
-    const PO = createPurchaseOrder({ lineItems, poNumber: createPONumber(52) });
+    const PO = createPurchaseOrder({
+      lineItems,
+      poNumber: createPONumber("syn", 52),
+    });
     expect(isUuid(PO.id)).toBeTruthy();
     expect(PO.poNumber).toBe("syn-000052");
   });

@@ -24,12 +24,12 @@ describe("Purcase Order Repository", () => {
       const repo = constructPORepository();
       const po9 = createPurchaseOrder({
         lineItems,
-        poNumber: createPONumber(9),
+        poNumber: createPONumber("syn", 9),
       });
       await repo.save(po9);
       const po1 = createPurchaseOrder({
         lineItems,
-        poNumber: createPONumber(1),
+        poNumber: createPONumber("syn", 1),
       });
       const result = await repo.save(po1);
       const output = match(result, { Err: (err: Error) => err.message });
@@ -39,12 +39,12 @@ describe("Purcase Order Repository", () => {
       const repo = constructPORepository();
       const po1 = createPurchaseOrder({
         lineItems,
-        poNumber: createPONumber(1),
+        poNumber: createPONumber("syn", 1),
       });
       await repo.save(po1);
       const po1Again = createPurchaseOrder({
         lineItems,
-        poNumber: createPONumber(1),
+        poNumber: createPONumber("syn", 1),
       });
       const result = await repo.save(po1Again);
       const output = match(result, { Err: (err: Error) => err.message });
@@ -54,7 +54,7 @@ describe("Purcase Order Repository", () => {
       const repo = constructPORepository();
       const po1 = createPurchaseOrder({
         lineItems,
-        poNumber: createPONumber(1),
+        poNumber: createPONumber("syn", 1),
       });
       await repo.save(po1);
       const poInvalid = createPurchaseOrder({
@@ -72,7 +72,7 @@ describe("Purcase Order Repository", () => {
       const res1 = await repo.fetchNextPONumber();
       expect(res1.unwrap()).toBe("syn-000001");
       await repo.save(
-        createPurchaseOrder({ lineItems, poNumber: createPONumber(1) }),
+        createPurchaseOrder({ lineItems, poNumber: createPONumber("syn", 1) }),
       );
       const res2 = await repo.fetchNextPONumber();
       expect(res2.unwrap()).toBe("syn-000002");

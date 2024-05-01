@@ -66,13 +66,16 @@ describe("Create PO Workflow", () => {
 
   it("increments purchase order PO number", async () => {
     const repo = constructPORepository();
-    const po1 = createPurchaseOrder({ lineItems, poNumber: createPONumber(1) });
+    const po1 = createPurchaseOrder({
+      lineItems,
+      poNumber: createPONumber("syn", 1),
+    });
     await repo.save(po1);
     const result = await createPO({ PORepo: repo })(lineItems);
     const po2Res = await repo.fetch(result.unwrap());
     const output = match(po2Res, {
       Ok: { Some: (result: PurchaseOrder) => result },
     });
-    expect(output.poNumber).toEqual(createPONumber(2));
+    expect(output.poNumber).toEqual(createPONumber("syn", 2));
   });
 });

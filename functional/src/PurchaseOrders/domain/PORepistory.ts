@@ -10,11 +10,11 @@ class PORepository implements IPORepository {
   async save(po: PurchaseOrder) {
     if (!po.lineItems.length) return Err(new Error("Missing line items"));
     const parsedPONumber = parsePONumber(po.poNumber);
-    if (!parsedPONumber || parsedPONumber <= this.poNumberSeq) {
+    if (!parsedPONumber || parsedPONumber.num <= this.poNumberSeq) {
       return Err(new Error("PO number is invalid"));
     }
     this.purchaseOrders.push(po);
-    this.poNumberSeq = parsedPONumber;
+    this.poNumberSeq = parsedPONumber.num;
     return Ok(undefined);
   }
   async fetch(id: UUID) {
@@ -22,7 +22,7 @@ class PORepository implements IPORepository {
     return po ? Ok(Some(po)) : Ok(None);
   }
   async fetchNextPONumber() {
-    return Ok(createPONumber(this.poNumberSeq + 1));
+    return Ok(createPONumber("syn", this.poNumberSeq + 1));
   }
 }
 export const constructPORepository = () => new PORepository();

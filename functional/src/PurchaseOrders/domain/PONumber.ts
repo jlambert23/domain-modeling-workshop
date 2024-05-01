@@ -1,13 +1,16 @@
-export type PONumber = `syn-${number}`;
+export type PONumber = `${string}-${number}`;
 
-export const createPONumber = (num: number): PONumber => {
+export const createPONumber = (prefix: string, num: number): PONumber => {
   const paddedNumber = String(num).padStart(6, "0");
-  return `syn-${paddedNumber}` as PONumber;
+  return `${prefix}-${paddedNumber}` as PONumber;
 };
 
-export const parsePONumber = (poNumber: PONumber): number | null => {
-  const match = poNumber.match(/\d+/);
-  if (!match) return null;
-  const parsedNumber = Number(match[0]);
-  return Number.isInteger(parsedNumber) ? parsedNumber : null;
+export const parsePONumber = (
+  poNumber: PONumber,
+): { prefix: string; num: number } | null => {
+  if (typeof poNumber !== "string") return null;
+  const [prefix, number] = poNumber.split("-");
+  const parsedNumber = Number(number);
+  if (!prefix.length || number?.length !== 6) return null;
+  return { prefix, num: parsedNumber };
 };
