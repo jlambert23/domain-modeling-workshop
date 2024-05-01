@@ -33,7 +33,10 @@ describe("Create PO Workflow", () => {
 
   it("returns a uuid", async () => {
     const repo = constructPORepository();
-    const poResult = await createPO({ PORepo: repo })(lineItems);
+    const poResult = await createPO({ PORepo: repo })({
+      org: "syn",
+      lineItems,
+    });
     const id = poResult.unwrap();
     expect(poResult.isOk()).toBeTruthy();
     expect(isUuid(id)).toBeTruthy();
@@ -41,7 +44,7 @@ describe("Create PO Workflow", () => {
 
   it("saves a purchase order to a repository", async () => {
     const repo = constructPORepository();
-    const result = await createPO({ PORepo: repo })(lineItems);
+    const result = await createPO({ PORepo: repo })({ org: "syn", lineItems });
     const id = result.unwrap();
     const poRes = await repo.fetch(id);
     const output = match(poRes, {
@@ -60,22 +63,29 @@ describe("Create PO Workflow", () => {
 
   it("fails to save a purchase order without line items", async () => {
     const repo = constructPORepository();
-    const result = await createPO({ PORepo: repo })([]);
+    const result = await createPO({ PORepo: repo })({
+      org: "syn",
+      lineItems: [],
+    });
     expect(result.unwrapErr()).toEqual(new Error("Missing line items"));
   });
 
-  it("increments purchase order PO number", async () => {
+  it("increments purchase order PO number by org", async () => {
     const repo = constructPORepository();
-    const po1 = createPurchaseOrder({
+    const poSeed = createPurchaseOrder({
       lineItems,
       poNumber: createPONumber("syn", 1),
     });
-    await repo.save(po1);
-    const result = await createPO({ PORepo: repo })(lineItems);
-    const po2Res = await repo.fetch(result.unwrap());
-    const output = match(po2Res, {
+    await repo.save(poSeed);
+    const synRes = await createPO({ PORepo: repo })({ org: "syn", lineItems });
+    const synPO = match(await repo.fetch(synRes.unwrap()), {
       Ok: { Some: (result: PurchaseOrder) => result },
     });
-    expect(output.poNumber).toEqual(createPONumber("syn", 2));
+    expect(synPO.poNumber).toEqual(createPONumber("syn", 2));
+    const fooRes = await createPO({ PORepo: repo })({ org: "foo", lineItems });
+    const fooPO = match(await repo.fetch(fooRes.unwrap()), {
+      Ok: { Some: (result: PurchaseOrder) => result },
+    });
+    expect(fooPO.poNumber).toEqual(createPONumber("foo", 1));
   });
 });

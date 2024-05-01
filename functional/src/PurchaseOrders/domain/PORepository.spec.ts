@@ -67,15 +67,17 @@ describe("Purcase Order Repository", () => {
     });
   });
   describe("fetchNextPONumber", () => {
-    it("does it", async () => {
+    it("fetches next PONumber by org", async () => {
       const repo = constructPORepository();
-      const res1 = await repo.fetchNextPONumber();
-      expect(res1.unwrap()).toBe("syn-000001");
+      const syn1Res = await repo.fetchNextPONumber("syn");
+      expect(syn1Res.unwrap()).toBe("syn-000001");
       await repo.save(
         createPurchaseOrder({ lineItems, poNumber: createPONumber("syn", 1) }),
       );
-      const res2 = await repo.fetchNextPONumber();
-      expect(res2.unwrap()).toBe("syn-000002");
+      const syn2Res = await repo.fetchNextPONumber("syn");
+      expect(syn2Res.unwrap()).toBe("syn-000002");
+      const fooRes = await repo.fetchNextPONumber("foo");
+      expect(fooRes.unwrap()).toBe("foo-000001");
     });
   });
 });

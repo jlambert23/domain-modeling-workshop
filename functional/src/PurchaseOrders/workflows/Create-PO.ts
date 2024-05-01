@@ -4,8 +4,8 @@ import { LineItem, createPurchaseOrder } from "../domain/PurchaseOrder";
 
 export const createPO =
   ({ PORepo }: { PORepo: IPORepository }) =>
-  async (lineItems: LineItem[]) => {
-    const poNumberResult = await PORepo.fetchNextPONumber();
+  async ({ org, lineItems }: { org: string; lineItems: LineItem[] }) => {
+    const poNumberResult = await PORepo.fetchNextPONumber(org);
     if (poNumberResult.isErr()) return Err(poNumberResult.unwrapErr());
     const poNumber = poNumberResult.unwrap();
     const purchaseOrder = createPurchaseOrder({ lineItems, poNumber });

@@ -6,5 +6,5 @@ import { PONumber } from "./PONumber";
 export interface IPORepository {
   save: (po: PurchaseOrder) => Promise<Result<undefined, Error>>;
   fetch: (id: UUID) => Promise<Result<Option<PurchaseOrder>, Error>>;
-  fetchNextPONumber: () => Promise<Result<PONumber, Error>>;
+  fetchNextPONumber: (org: string) => Promise<Result<PONumber, Error>>;
 }
