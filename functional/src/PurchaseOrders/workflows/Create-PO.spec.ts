@@ -1,7 +1,13 @@
 import { match } from "oxide.ts";
 import { isUuid } from "../../utilities/uuid";
+import { createPONumber } from "../domain/PONumber";
 import { constructPORepository } from "../domain/PORepistory";
-import { LineItem, isPurchaseOrder } from "../domain/PurchaseOrder";
+import {
+  LineItem,
+  PurchaseOrder,
+  createPurchaseOrder,
+  isPurchaseOrder,
+} from "../domain/PurchaseOrder";
 import { createPO } from "./Create-PO";
 
 const lineItems: LineItem[] = [
@@ -56,5 +62,17 @@ describe("Create PO Workflow", () => {
     const repo = constructPORepository();
     const result = await createPO({ PORepo: repo })([]);
     expect(result.unwrapErr()).toEqual(new Error("Missing line items"));
+  });
+
+  it("increments purchase order PO number", async () => {
+    const repo = constructPORepository();
+    const po1 = createPurchaseOrder({ lineItems, poNumber: createPONumber(1) });
+    await repo.save(po1);
+    const result = await createPO({ PORepo: repo })(lineItems);
+    const po2Res = await repo.fetch(result.unwrap());
+    const output = match(po2Res, {
+      Ok: { Some: (result: PurchaseOrder) => result },
+    });
+    expect(output.poNumber).toEqual(createPONumber(2));
   });
 });

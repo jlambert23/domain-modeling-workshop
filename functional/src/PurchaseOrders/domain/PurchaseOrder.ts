@@ -1,4 +1,5 @@
 import { createUuid, UUID, isUuid } from "../../utilities/uuid";
+import { PONumber } from "./PONumber";
 
 export type LineItem = {
   item: number;
@@ -6,13 +7,24 @@ export type LineItem = {
   price: number;
   quantity: number;
 };
-export type PurchaseOrder = { id: UUID; lineItems: LineItem[] };
+
+export type PurchaseOrder = {
+  id: UUID;
+  lineItems: LineItem[];
+  poNumber: PONumber;
+};
+
 export type createPurchaseOrder = (po: {
+  poNumber: PONumber;
   lineItems: LineItem[];
 }) => PurchaseOrder;
 
-export const createPurchaseOrder: createPurchaseOrder = ({ lineItems }) => ({
+export const createPurchaseOrder: createPurchaseOrder = ({
+  poNumber,
+  lineItems,
+}) => ({
   id: createUuid(),
+  poNumber,
   lineItems,
 });
 
