@@ -1,5 +1,5 @@
 import { isUuid } from "../../utilities/uuid";
-import { createPONumber } from "./PONumber";
+import { PONumber } from "./PONumber";
 import { LineItem, createPurchaseOrder } from "./PurchaseOrder";
 
 const lineItems: LineItem[] = [
@@ -21,7 +21,7 @@ describe("Purcase Order Entity", () => {
   it("does it", () => {
     const PO = createPurchaseOrder({
       lineItems,
-      poNumber: createPONumber("syn", 52),
+      poNumber: PONumber.create("syn", 52),
     });
     expect(isUuid(PO.id)).toBeTruthy();
     expect(PO.poNumber).toBe("syn-000052");

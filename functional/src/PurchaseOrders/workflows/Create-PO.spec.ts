@@ -1,5 +1,5 @@
 import { isUuid } from "../../utilities/uuid";
-import { createPONumber } from "../domain/PONumber";
+import { PONumber } from "../domain/PONumber";
 import { constructPORepository } from "../domain/PORepistory";
 import { LineItem, createPurchaseOrder } from "../domain/PurchaseOrder";
 import { createPO } from "./Create-PO";
@@ -56,14 +56,18 @@ describe("Create PO Workflow", () => {
     const repo = constructPORepository();
     const poSeed = createPurchaseOrder({
       lineItems,
-      poNumber: createPONumber("syn", 1),
+      poNumber: PONumber.create("syn", 1),
     });
     await repo.save(poSeed);
     const synRes = await createPO({ PORepo: repo })({ org: "syn", lineItems });
     const synPORes = await repo.fetch(synRes._unsafeUnwrap());
-    expect(synPORes._unsafeUnwrap().poNumber).toEqual(createPONumber("syn", 2));
+    expect(synPORes._unsafeUnwrap().poNumber).toEqual(
+      PONumber.create("syn", 2),
+    );
     const fooRes = await createPO({ PORepo: repo })({ org: "foo", lineItems });
     const fooPORes = await repo.fetch(fooRes._unsafeUnwrap());
-    expect(fooPORes._unsafeUnwrap().poNumber).toEqual(createPONumber("foo", 1));
+    expect(fooPORes._unsafeUnwrap().poNumber).toEqual(
+      PONumber.create("foo", 1),
+    );
   });
 });

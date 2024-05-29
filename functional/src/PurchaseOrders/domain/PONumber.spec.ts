@@ -1,26 +1,22 @@
-import { PONumber, createPONumber, parsePONumber } from "./PONumber";
+import { PONumber } from "./PONumber";
 
-describe("PONumber value object", () => {
-  describe("createPONumber", () => {
-    it("does it", () => {
-      const poNumber = createPONumber("syn", 115);
-      expect(poNumber).toBe("syn-000115");
-    });
+describe("PONumber.create", () => {
+  it("creates a PO number", () => {
+    const poNumber = PONumber.create("syn", 115);
+    expect(poNumber).toBe("syn-000115");
   });
-  describe("parsePONumber", () => {
-    it("does it", () => {
-      const poNumber = createPONumber("syn", 115);
-      const { prefix, num } = parsePONumber(poNumber)!;
-      expect(prefix).toBe("syn");
-      expect(num).toBe(115);
-    });
-    it("returns null when not given a PONumber", () => {
-      expect(parsePONumber("not a po number" as PONumber)).toBeNull();
-      expect(parsePONumber("syn-foo" as PONumber)).toBeNull();
-      expect(parsePONumber("000115" as PONumber)).toBeNull();
-      expect(parsePONumber("-000115" as PONumber)).toBeNull();
-      expect(parsePONumber("syn-0" as PONumber)).toBeNull();
-      expect(parsePONumber(12345 as unknown as PONumber)).toBeNull();
-    });
+});
+
+describe("PONumber.prefix", () => {
+  it("returns the PO number prefix", () => {
+    const poNumber = PONumber.create("syn", 115);
+    expect(PONumber.prefix(poNumber)).toBe("syn");
+  });
+});
+
+describe("PONumber.value", () => {
+  it("returns the PO number value", () => {
+    const poNumber = PONumber.create("syn", 115);
+    expect(PONumber.value(poNumber)).toBe(115);
   });
 });

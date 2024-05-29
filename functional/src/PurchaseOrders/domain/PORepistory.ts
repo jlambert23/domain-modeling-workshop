@@ -1,7 +1,7 @@
 import { errAsync, okAsync } from "neverthrow";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
-import { createPONumber, parsePONumber } from "./PONumber";
+import { PONumber } from "./PONumber";
 import { PurchaseOrder } from "./PurchaseOrder";
 
 class PORepository implements IPORepository {
@@ -16,8 +16,11 @@ class PORepository implements IPORepository {
   }
   save(po: PurchaseOrder) {
     if (!po.lineItems.length) return errAsync(new Error("Missing line items"));
-    const parsedPONumber = parsePONumber(po.poNumber);
-    if (!parsedPONumber || !this._validateParsedPONumber(parsedPONumber))
+    const parsedPONumber = {
+      prefix: PONumber.prefix(po.poNumber),
+      num: PONumber.value(po.poNumber),
+    };
+    if (!this._validateParsedPONumber(parsedPONumber))
       return errAsync(new Error("PO number is invalid"));
     this.orgPONumberMap.set(parsedPONumber.prefix, parsedPONumber.num);
     this.purchaseOrders.push(po);
@@ -29,7 +32,7 @@ class PORepository implements IPORepository {
   }
   fetchNextPONumber(org: string) {
     const lastOrgPONumber = this.orgPONumberMap.get(org) ?? 0;
-    return okAsync(createPONumber(org, lastOrgPONumber + 1));
+    return okAsync(PONumber.create(org, lastOrgPONumber + 1));
   }
 }
 export const constructPORepository = (): IPORepository => new PORepository();
