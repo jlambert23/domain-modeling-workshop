@@ -1,4 +1,3 @@
-import { match } from "oxide.ts";
 import { PONumber, createPONumber } from "./PONumber";
 import { constructPORepository } from "./PORepistory";
 import { LineItem, createPurchaseOrder } from "./PurchaseOrder";
@@ -32,8 +31,9 @@ describe("Purcase Order Repository", () => {
         poNumber: createPONumber("syn", 1),
       });
       const result = await repo.save(po1);
-      const output = match(result, { Err: (err: Error) => err.message });
-      expect(output).toEqual("PO number is invalid");
+      expect(result._unsafeUnwrapErr()).toEqual(
+        new Error("PO number is invalid"),
+      );
     });
     it("returns an error when given the same PO number", async () => {
       const repo = constructPORepository();
@@ -47,8 +47,9 @@ describe("Purcase Order Repository", () => {
         poNumber: createPONumber("syn", 1),
       });
       const result = await repo.save(po1Again);
-      const output = match(result, { Err: (err: Error) => err.message });
-      expect(output).toEqual("PO number is invalid");
+      expect(result._unsafeUnwrapErr()).toEqual(
+        new Error("PO number is invalid"),
+      );
     });
     it("returns an error when given an invalid PO number", async () => {
       const repo = constructPORepository();
@@ -62,22 +63,23 @@ describe("Purcase Order Repository", () => {
         poNumber: "foobar" as PONumber,
       });
       const result = await repo.save(poInvalid);
-      const output = match(result, { Err: (err: Error) => err.message });
-      expect(output).toEqual("PO number is invalid");
+      expect(result._unsafeUnwrapErr()).toEqual(
+        new Error("PO number is invalid"),
+      );
     });
   });
   describe("fetchNextPONumber", () => {
     it("fetches next PONumber by org", async () => {
       const repo = constructPORepository();
       const syn1Res = await repo.fetchNextPONumber("syn");
-      expect(syn1Res.unwrap()).toBe("syn-000001");
+      expect(syn1Res._unsafeUnwrap()).toBe("syn-000001");
       await repo.save(
         createPurchaseOrder({ lineItems, poNumber: createPONumber("syn", 1) }),
       );
       const syn2Res = await repo.fetchNextPONumber("syn");
-      expect(syn2Res.unwrap()).toBe("syn-000002");
+      expect(syn2Res._unsafeUnwrap()).toBe("syn-000002");
       const fooRes = await repo.fetchNextPONumber("foo");
-      expect(fooRes.unwrap()).toBe("foo-000001");
+      expect(fooRes._unsafeUnwrap()).toBe("foo-000001");
     });
   });
 });

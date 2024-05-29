@@ -1,4 +1,4 @@
-import { Err, None, Ok, Some } from "oxide.ts";
+import { errAsync, okAsync } from "neverthrow";
 import { UUID } from "../../utilities/uuid";
 import { IPORepository } from "./IPORepository";
 import { createPONumber, parsePONumber } from "./PONumber";
@@ -14,22 +14,22 @@ class PORepository implements IPORepository {
     const lastOrgPONumber = this.orgPONumberMap.get(parsed.prefix) ?? 0;
     return parsed.num > lastOrgPONumber;
   }
-  async save(po: PurchaseOrder) {
-    if (!po.lineItems.length) return Err(new Error("Missing line items"));
+  save(po: PurchaseOrder) {
+    if (!po.lineItems.length) return errAsync(new Error("Missing line items"));
     const parsedPONumber = parsePONumber(po.poNumber);
     if (!parsedPONumber || !this._validateParsedPONumber(parsedPONumber))
-      return Err(new Error("PO number is invalid"));
+      return errAsync(new Error("PO number is invalid"));
     this.orgPONumberMap.set(parsedPONumber.prefix, parsedPONumber.num);
     this.purchaseOrders.push(po);
-    return Ok(undefined);
+    return okAsync(undefined);
   }
-  async fetch(id: UUID) {
+  fetch(id: UUID) {
     const po = this.purchaseOrders.find((p) => p.id === id);
-    return po ? Ok(Some(po)) : Ok(None);
+    return po ? okAsync(po) : errAsync(new Error("not found"));
   }
-  async fetchNextPONumber(org: string) {
+  fetchNextPONumber(org: string) {
     const lastOrgPONumber = this.orgPONumberMap.get(org) ?? 0;
-    return Ok(createPONumber(org, lastOrgPONumber + 1));
+    return okAsync(createPONumber(org, lastOrgPONumber + 1));
   }
 }
-export const constructPORepository = () => new PORepository();
+export const constructPORepository = (): IPORepository => new PORepository();
